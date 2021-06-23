@@ -1,6 +1,6 @@
 from console.utils import set_title
 from PIL import Image
-from typing import Iterable, List, NoReturn
+from typing import Generator, Sized, NoReturn
 import os
 
 __version__: str = '1.0.5-beta'
@@ -19,7 +19,7 @@ YP   YP `8888Y'  `Y88P' Y888888P Y888888P      YP   YP 88   YD    YP            
 """
 
 
-def chunks(lst: List[Any], n: int) -> Iterable:
+def chunks(lst: Sized[str], n: int) -> Generator[str]:
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
@@ -33,7 +33,7 @@ def resize_image(image: Image, new_width: int = ASCII_WIDTH) -> Image:
 
 
 def pixel_to_ascii(image: Image) -> str:
-    """Convert pixels to a string of ascii characters"""
+    """Convert pixels to a string of ascii characters."""
     return ''.join(ASCII_CHARS[int((pixel / 256) * len(ASCII_CHARS))] for pixel in image.getdata())
 
 
@@ -67,7 +67,7 @@ def main() -> NoReturn:
         os.system("pause")
 
         with open("image.txt", "w+") as f:
-            f.write(ascii_image)
+            f.write(new_image_data)
 
     print("Exiting....")
 
