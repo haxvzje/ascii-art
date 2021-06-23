@@ -1,8 +1,7 @@
 from console.utils import set_title
 from PIL import Image
 import random
-import time
-from os import system
+import os
 
 __version__ = '1.0.5-beta'
 __author__ = 'Baziki#7133'
@@ -10,6 +9,15 @@ __author__ = 'Baziki#7133'
 
 # ascii characters used to build the output text
 ASCII_CHARS = "@#S%?*+;:,."
+
+TITLE = """
+.d8b.  .d8888.  .o88b. d888888b d888888b       .d8b.  d8888b. d888888b      d888888b  .d88b.   .d88b.  db      
+d8' `8b 88'  YP d8P  Y8   `88'     `88'        d8' `8b 88  `8D `~~88~~'      `~~88~~' .8P  Y8. .8P  Y8. 88      
+88ooo88 `8bo.   8P         88       88         88ooo88 88oobY'    88            88    88    88 88    88 88      
+88~~~88   `Y8b. 8b         88       88         88~~~88 88`8b      88            88    88    88 88    88 88      
+88   88 db   8D Y8b  d8   .88.     .88.        88   88 88 `88.    88            88    `8b  d8' `8b  d8' 88booo. 
+YP   YP `8888Y'  `Y88P' Y888888P Y888888P      YP   YP 88   YD    YP            YP     `Y88P'   `Y88P'  Y88888P
+"""
 
 
 # resize image according to a new width
@@ -27,48 +35,51 @@ def gray_ify(image):
 
 # convert pixels to a string of ascii characters
 def pta(image):
-    pixels = image.getdata()
-    return "".join(ASCII_CHARS[pixel // 25] for pixel in pixels)
+    return ''.join(ASCII_CHARS[pixel // 25] for pixel in image.getdata())
 
 
-def main(new_width=100):
+def main():
+    set_title(f'ASCII Art Convert - v{__version__} | by {__author__}')
+    os.system('cls')
+
     # attempt to open image from user-input
-    print(logo + f"\nAuthor: {author}")
-    print(f"Session: {se1}{se2}{se3}{se4}\n")
+    print(TITLE)
+    print(f"\nAuthor: {__author__}")
+    print(f"Session: {random.randint(0, 9999):04}\n")
 
-    while True:
+    is_running = True
+
+    while is_running:
         path = input("#if you want to exit type 'exit' or 'quit'\nImage Patch: ")
 
         if path in ['exit', 'quit', 'EXIT', 'QUIT']:
             print("\nExiting....")
-            time.sleep(3)
-            exit()
+            is_running = False
 
-        try:
-            image = Image.open(path)
-            break
-
-        except Exception:
+        if not os.path.exists(path):
             print(path, "is not a valid path.")
+            continue
+
+        image = Image.open(path)
+        convert_image(image)
+
+
+def convert_image(image, new_width=100):
     # convert image to ascii
     print("\nConverting your image to ASCII....")
-    time.sleep(3)
     new_image_data = pta(gray_ify(resize_image(image)))
 
     # format
     print("\nFormat your ASCII image....")
-    time.sleep(2)
+
     pixel_count = len(new_image_data)
-    ascii_image = "\n".join(
-        new_image_data[index: (index + new_width)]
-        for index in range(0, pixel_count, new_width)
-    )
+    ascii_image = "\n".join(new_image_data[index: (index + new_width)] for index in range(0, pixel_count, new_width))
 
     # print result
     print("\nYour ASCII Image:")
     print(ascii_image)
     print("\nYour ASCII image has been saved to 'image.txt'")
-    input()
+    os.system("pause")
 
     # save result to "image.txt"
     with open("image.txt", "w") as f:
@@ -77,16 +88,4 @@ def main(new_width=100):
 
 # run program
 if __name__ == '__main__':
-    print("""
-        .d8b.  .d8888.  .o88b. d888888b d888888b       .d8b.  d8888b. d888888b      d888888b  .d88b.   .d88b.  db      
-        d8' `8b 88'  YP d8P  Y8   `88'     `88'        d8' `8b 88  `8D `~~88~~'      `~~88~~' .8P  Y8. .8P  Y8. 88      
-        88ooo88 `8bo.   8P         88       88         88ooo88 88oobY'    88            88    88    88 88    88 88      
-        88~~~88   `Y8b. 8b         88       88         88~~~88 88`8b      88            88    88    88 88    88 88      
-        88   88 db   8D Y8b  d8   .88.     .88.        88   88 88 `88.    88            88    `8b  d8' `8b  d8' 88booo. 
-        YP   YP `8888Y'  `Y88P' Y888888P Y888888P      YP   YP 88   YD    YP            YP     `Y88P'   `Y88P'  Y88888P
-    """)
-
-    se1, se2, se3, se4 = (random.randint(0, 9) for _ in range(4))
-    set_title(f'ASCII Art Convert - v{__version__} | by {__author__}')
-    system('cls')
     main()
