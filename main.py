@@ -1,84 +1,76 @@
 from console.utils import set_title
 from PIL import Image
-import random
-import time
-from os import system
+from typing import Generator, Sized, NoReturn
+import os
 
-# ascii characters used to build the output text
-ASCII_CHARS = ["@", "#", "S", "%", "?", "*", "+", ";", ":", ",", "."]
+__version__: str = '1.0.5-beta'
+__author__: str = 'Baziki#7133'
 
-# resize image according to a new width
-def resize_image(image, new_width=100):
-    width, height = image.size
-    ratio = height/width
-    new_height = int(ratio * new_width * 0.55)
-    resized_image = image.resize((new_width, new_height))
-    return(resized_image)
+ASCII_CHARS: str = "@#S%?*+;:,. "
+ASCII_WIDTH: int = 80  # terminal width
 
-# convert each pixel to grayscale
-def grayify(image):
-    grayscale_image = image.convert("L")
-    return(grayscale_image)
-    
-# convert pixels to a string of ascii characters
-def pta(image):
-    pixels = image.getdata()
-    characters = "".join([ASCII_CHARS[pixel//25] for pixel in pixels])
-    return(characters)    
-
-def main(new_width=100):
-    # attempt to open image from user-input
-    print(logo + f"\nAuthor: {author}")
-    print(f"Session: {se1}{se2}{se3}{se4}\n")
-    while True:
-	    path = input("#if you want to exit type 'exit' or 'quit'\nImage Patch: ")
-	    if path=='exit' or path=='quit' or path=='EXIT' or path=='QUIT':
-	    	print("\nExiting....")
-	    	time.sleep(3)
-	    	exit()
-	    try:
-	        image = Image.open(path)
-	        break
-	    except:
-	        print(path, "is not a valid path.")
-	        pass
-  
-    # convert image to ascii
-    print("\nConverting your image to ASCII....")
-    time.sleep(3)
-    new_image_data = pta(grayify(resize_image(image)))
-    
-    # format
-    print("\nFormat your ASCII image....")
-    time.sleep(2)
-    pixel_count = len(new_image_data)  
-    ascii_image = "\n".join([new_image_data[index:(index+new_width)] for index in range(0, pixel_count, new_width)])
-    
-    # print result
-    print("\nYour ASCII Image:")
-    print(ascii_image)
-    print("\nYour ASCII image has been saved to 'image.txt'")
-    input()
-    
-    # save result to "image.txt"
-    with open("image.txt", "w") as f:
-        f.write(ascii_image)
- 
-# run program
-if __name__ == '__main__':
-	logo = ''' .d8b.  .d8888.  .o88b. d888888b d888888b       .d8b.  d8888b. d888888b      d888888b  .d88b.   .d88b.  db      
+TITLE: str = """
+.d8b.  .d8888.  .o88b. d888888b d888888b       .d8b.  d8888b. d888888b      d888888b  .d88b.   .d88b.  db      
 d8' `8b 88'  YP d8P  Y8   `88'     `88'        d8' `8b 88  `8D `~~88~~'      `~~88~~' .8P  Y8. .8P  Y8. 88      
 88ooo88 `8bo.   8P         88       88         88ooo88 88oobY'    88            88    88    88 88    88 88      
 88~~~88   `Y8b. 8b         88       88         88~~~88 88`8b      88            88    88    88 88    88 88      
 88   88 db   8D Y8b  d8   .88.     .88.        88   88 88 `88.    88            88    `8b  d8' `8b  d8' 88booo. 
-YP   YP `8888Y'  `Y88P' Y888888P Y888888P      YP   YP 88   YD    YP            YP     `Y88P'   `Y88P'  Y88888P '''
-	version = '1.0.5-beta'
-	author = 'Baziki#7133'
-	se1 = random.randint(0,9)
-	se2 = random.randint(0,9)
-	se3 = random.randint(0,9)
-	se4 = random.randint(0,9)
+YP   YP `8888Y'  `Y88P' Y888888P Y888888P      YP   YP 88   YD    YP            YP     `Y88P'   `Y88P'  Y88888P
+"""
 
-	set_title(f'ASCII Art Convert - v{version} | by {author}')
-	system('cls')
-	main()
+
+def chunks(lst: Sized[str], n: int) -> Generator[str]:
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def resize_image(image: Image, new_width: int = ASCII_WIDTH) -> Image:
+    """Resize image according to a new width."""
+    width, height = image.size
+    new_height = int((height / width) * new_width * 0.55)
+    return image.resize((new_width, new_height))
+
+
+def pixel_to_ascii(image: Image) -> str:
+    """Convert pixels to a string of ascii characters."""
+    return ''.join(ASCII_CHARS[int((pixel / 256) * len(ASCII_CHARS))] for pixel in image.getdata())
+
+
+def main() -> NoReturn:
+    set_title(f'ASCII Art Convert - v{__version__} | by {__author__}')
+    os.system('cls')
+
+    print(TITLE)
+    print(f"\nAuthor: {__author__}")
+    is_running: bool = True
+
+    while is_running:
+        path: str = input("#if you want to exit type 'exit' or 'quit'\nImage Patch: ")
+
+        if path in {'exit', 'quit', 'EXIT', 'QUIT'}:
+            is_running = False
+
+        if not os.path.exists(path):
+            print(path, "is not a valid path.")
+            continue
+
+        image: Image = Image.open(path)
+
+        print("Converting your image to ASCII....")
+        new_image_data: str = pixel_to_ascii(resize_image(image).convert("L"))
+
+        print("Your ASCII Image:")
+        print('\n'.join(chunks(new_image_data, ASCII_WIDTH)))
+
+        print("Your ASCII image has been saved to image.txt")
+        os.system("pause")
+
+        with open("image.txt", "w+") as f:
+            f.write(new_image_data)
+
+    print("Exiting....")
+
+
+if __name__ == '__main__':
+    main()
